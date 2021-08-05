@@ -1,0 +1,23 @@
+- name: Configure SAMBA users
+  hosts: localhost
+  strategy: linear
+  vars:
+    <%= @samba_users_ansible_config %>
+
+  tasks:
+  - name: Set samba users
+    shell: |
+            (echo '{{ item.passwd }}'; echo '{{ item.passwd }}') | smbpasswd -s -a "{{ item.name }}"
+    with_items:
+      - "{{ users_to_add }}"
+    no_log: True
+    delegate_to: localhost
+
+  - name: Remove samba users
+    shell: |
+            smbpasswd -x "{{ item.name }}"
+    with_items:
+      - "{{ users_to_remove }}"
+    no_log: True
+    delegate_to: localhost
+
